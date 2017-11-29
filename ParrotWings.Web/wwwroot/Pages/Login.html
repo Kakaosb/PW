@@ -1,0 +1,87 @@
+﻿<div class="jumbotron text-center">
+    <h3>Login</h3>
+
+    <div class="row">
+        <div class="loginForm">
+            <h3>Вход на сайт</h3>
+            <label>Введите email</label><br />
+            <input type="email" id="emailLogin" /> <br /><br />
+            <label>Введите пароль</label><br />
+            <input type="password" id="passwordLogin" /><br /><br />
+            <input type="submit" id="submitLogin" value="Логин" ng-click="loggedInFunc()" />
+        </div>
+    </div>
+
+    <p>{{ message }} тут</p>
+</div>
+
+<script type="text/javascript">
+    //$(function () {
+    //...........................
+
+   
+
+    var result;
+
+    function loggedInFunc() {
+        var loginData = {
+            grant_type: 'password',
+            username: $('#emailLogin').val(),
+            password: $('#passwordLogin').val()
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: baseUrl + '/Token',
+            data: loginData,
+            async: false
+        }).success(function (data) {
+            $('.userName').text(data.userName);
+            $('.userInfo').css('display', 'block');
+            $('.loginForm').css('display', 'none');
+            // сохраняем в хранилище sessionStorage токен доступа
+            sessionStorage.setItem(tokenKey, data.access_token);
+            console.log(data.access_token);
+
+            result = true;
+        }).fail(function (data) {
+            alert('При логине возникла ошибка');
+            result = false;
+        });
+
+        return result;
+    }
+
+    //$('#submitLogin').click(function (e) {
+    //    e.preventDefault();
+    //    var loginData = {
+    //        grant_type: 'password',
+    //        username: $('#emailLogin').val(),
+    //        password: $('#passwordLogin').val()
+    //    };
+
+    //    $.ajax({
+    //        type: 'POST',
+    //        url: baseUrl + '/Token',
+    //        data: loginData
+    //    }).success(function (data) {
+    //        $('.userName').text(data.userName);
+    //        $('.userInfo').css('display', 'block');
+    //        $('.loginForm').css('display', 'none');
+    //        // сохраняем в хранилище sessionStorage токен доступа
+    //        sessionStorage.setItem(tokenKey, data.access_token);
+    //        console.log(data.access_token);
+
+    //        loggedIn = true;
+    //    }).fail(function (data) {
+    //        alert('При логине возникла ошибка');
+    //    });
+    //});
+
+    //$('#logOut').click(function (e) {
+    //    e.preventDefault();
+    //    sessionStorage.removeItem(tokenKey);
+    //    loggedIn = false;
+    //});
+    //})
+</script>

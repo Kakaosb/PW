@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html  ng-app="pWApp">
+<head>
+    <link rel="stylesheet" href="content/bootstrap.min.css" />
+ 
+    <link rel="stylesheet" href="content/kendo-common-min.css" />
+    <link rel="stylesheet" href="content/kendo.default.min.css" />
+
+    <script src="Scripts/bootstrap/jquery-1.9.1.min.js"></script>
+
+    <script src="Scripts/angular/angular.min.js"></script>
+    <script src="Scripts/angular/angular-route.js"></script>
+    <script src="Scripts/main.js"></script>
+    <script src="Scripts/kendo/kendo.all.min.js"></script>
+
+    <meta charset="utf-8" />
+    <title>Parrot Wings</title>
+</head>
+<body ng-controller="mainController as ctrl">
+<header>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <h1 class="navbar-brand">Parrot Wings</h1>
+            </div>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li ng-show="prop.loggedIn"><a href="#!Operations"><i class="fa fa-shield"></i> My operations</a></li>
+                <li ng-show="prop.loggedIn"><a href="#!Logout" ng-click="logout()"><i class="fa fa-comment"></i> Logout</a></li>  
+                
+                <li ng-show="!prop.loggedIn"><a href="#!Login"><i class="fa fa-comment"></i> Login</a></li>                
+                <li ng-show="!prop.loggedIn"><a href="#!Register"><i class="fa fa-comment"></i> Register</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+
+<div id="main">
+    {{ message }}
+    <div ng-view></div>
+</div>
+</body>
+</html>
+
+<script>
+    
+
+    //$.ajax({
+    //    type: 'POST',
+    //    url: baseUrl + '/Account/Register',
+    //    contentType: 'application/json; charset=utf-8',
+    //    data: JSON.stringify(data)
+    //}).success(function (data) {
+    //    alert("Регистрация пройдена");
+    //}).fail(function (data) {
+    //    alert("В процесе регистрации возникла ошибка");
+    //});
+</script>
