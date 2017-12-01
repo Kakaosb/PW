@@ -66,8 +66,12 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wwwroot\Content\kendo-common-min.css" />
-    <Content Include="wwwroot\Content\kendo.default.min.css" />
+    <Content Include="wwwroot\Content\images\glyphicons-halflings-white.png" />
+    <Content Include="wwwroot\Content\images\glyphicons-halflings.png" />
+    <Content Include="wwwroot\Content\datatables.min.css" />
+    <Content Include="wwwroot\Content\images\sort_asc.png" />
+    <Content Include="wwwroot\Content\images\sort_both.png" />
+    <Content Include="wwwroot\Content\images\sort_desc.png" />
     <Content Include="wwwroot\Scripts\angular\angular-route.js" />
     <Content Include="wwwroot\Scripts\angular\angular-route.min.js" />
     <Content Include="wwwroot\Content\bootstrap-theme.css" />
@@ -83,6 +87,7 @@
     <Content Include="wwwroot\Content\bootstrap.css.map" />
     <Content Include="wwwroot\Content\bootstrap-theme.min.css.map" />
     <Content Include="wwwroot\Content\bootstrap-theme.css.map" />
+    <Content Include="wwwroot\Scripts\datatables.min.js" />
     <None Include="packages.config" />
     <Content Include="wwwroot\Scripts\angular\angular-route.min.js.map" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
@@ -110,6 +115,7 @@
     <Content Include="wwwroot\Pages\Operations.html" />
     <Content Include="wwwroot\Pages\Register.html" />
     <Content Include="wwwroot\Scripts\controllers\register.js" />
+    <Content Include="wwwroot\Scripts\jquery-ui.js" />
     <Content Include="wwwroot\Scripts\kendo\kendo.all.min.js" />
     <Content Include="wwwroot\Scripts\main.js" />
   </ItemGroup>

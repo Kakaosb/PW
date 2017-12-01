@@ -5,22 +5,27 @@
         padding: 0;
     }
 
-    .contact-info-form li {
-        margin: 10px 0;
-    }
+        .contact-info-form li {
+            margin: 10px 0;
+        }
 
-    .contact-info-form label {
-        display: inline-block;
-        width: 100px;
-        text-align: right;
-        font-weight: bold;
+        .contact-info-form label {
+            display: inline-block;
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+    .history {
+        width: 91%;
+        margin-left: 75px;
     }
 </style>
 
 
-<div class="jumbotron text-center">
+<div class="jumbotron text-center" >
     <h3>Operations</h3>
-    
+
     <div class="row">
         <div class="passForm">
             <h3>Перечислить PW</h3>
@@ -31,13 +36,70 @@
             <input type="submit" id="submitPass" value="Перечислить" />
         </div>
     </div>
-    
+
     <div class="row">
         <div class="history">
             <h3>История транзакций</h3>
-
+            <table id="operations" class="display" cellspacing="0" width="100%">
+                <thead>
+                <tr>
+                    <th>Sum</th>
+                    <th>Debit/Credit</th>
+                    <th>User Name</th>
+                    <th>Operation Date</th>
+                </tr>
+                </thead>
+                
+                <tfoot>
+                <tr>
+                    <th>Sum</th>
+                    <th>Debit/Credit</th>
+                    <th>User Name</th>
+                    <th>Operation Date</th>
+                </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
-
-    <p>{{ message }} тут</p>
 </div>
+
+<script>
+    function getLogs() {
+
+        var result;
+
+        $.ajax({
+            type: 'GET',
+            url: baseUrl + '/api/TransactionLogs/GetTransactionLogs',
+            beforeSend: function (xhr) {
+                var token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            async:false
+        }).success(function (data) {
+            
+            result = JSON.parse(data);
+
+        }).fail(function (data) {
+            alert(data);
+            });
+
+        return result;
+    }
+
+    var tt = getLogs();
+
+    console.log(tt);
+
+    $('#operations').DataTable(
+        {
+            data: tt,
+            columns: [
+                { data: 'Sum' },
+                { data: 'IsDebet' },
+                { data: 'UserName' },
+                { data: 'OperationDate' }
+            ]
+        });
+
+</script>

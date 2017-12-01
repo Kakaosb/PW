@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -323,21 +324,44 @@ namespace ParrotWings.API.Controllers
         [Route("Register")]
         public async Task<IHttpActionResult> Register(RegisterBindingModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = new ApplicationUser()
+                {
+                    UserName = model.Name,
+                    Email = model.Email
+                };
+
+                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+
+                if (!result.Succeeded)
+                {
+                    return GetErrorResult(result);
+                }
+
+                var _db = new ParrotWingsContext();
+
+                var newUser = new User()
+                {
+                    Name = model.Name,
+                    Balance = 500
+                };
+
+                _db.Users.Add(newUser);
+
+                _db.SaveChanges();
+
+                return Ok();
             }
-
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
-
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
+            catch (Exception ex)
             {
-                return GetErrorResult(result);
+                return BadRequest(ex.Message);
             }
-
-            return Ok();
         }
 
         // POST api/Account/RegisterExternal

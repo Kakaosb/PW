@@ -2,17 +2,20 @@
 <html  ng-app="pWApp">
 <head>
     <link rel="stylesheet" href="content/bootstrap.min.css" />
- 
-    <link rel="stylesheet" href="content/kendo-common-min.css" />
-    <link rel="stylesheet" href="content/kendo.default.min.css" />
+    
+    <link rel="stylesheet" href="content/datatables.min.css" />
 
     <script src="Scripts/bootstrap/jquery-1.9.1.min.js"></script>
+    <script src="Scripts/bootstrap/bootstrap.min.js"></script>
+    
+    <script src="Scripts/datatables.min.js"></script>
+    
+    <script src="Scripts/jquery-ui.js"></script>
 
     <script src="Scripts/angular/angular.min.js"></script>
     <script src="Scripts/angular/angular-route.js"></script>
     <script src="Scripts/main.js"></script>
-    <script src="Scripts/kendo/kendo.all.min.js"></script>
-
+  
     <meta charset="utf-8" />
     <title>Parrot Wings</title>
 </head>
@@ -37,23 +40,7 @@
 
 
 <div id="main">
-    {{ message }}
     <div ng-view></div>
 </div>
 </body>
 </html>
-
-<script>
-    
-
-    //$.ajax({
-    //    type: 'POST',
-    //    url: baseUrl + '/Account/Register',
-    //    contentType: 'application/json; charset=utf-8',
-    //    data: JSON.stringify(data)
-    //}).success(function (data) {
-    //    alert("Регистрация пройдена");
-    //}).fail(function (data) {
-    //    alert("В процесе регистрации возникла ошибка");
-    //});
-</script>

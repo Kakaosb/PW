@@ -35,17 +35,23 @@ namespace ParrotWings.API.Models
     public class RegisterBindingModel
     {
         [Required]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "Email")]
         public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [StringLength(20, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 2)]
+        [Display(Name = "Name")]
+        public string Name { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Подтверждение пароля")]
+        [Display(Name = "Confirm Password")]
         [Compare("Password", ErrorMessage = "Пароль и его подтверждение не совпадают.")]
         public string ConfirmPassword { get; set; }
     }
