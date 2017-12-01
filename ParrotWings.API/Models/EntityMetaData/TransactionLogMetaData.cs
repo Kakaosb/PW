@@ -10,7 +10,6 @@ namespace ParrotWings.API.Models.EntityMetaData
 {
     public class TransactionLogMetaData
     {
-        [Required]
         [DisplayName("Sender")]
         public int SenderId { get; set; }
 
@@ -21,9 +20,7 @@ namespace ParrotWings.API.Models.EntityMetaData
         [Required]
         public decimal Sum { get; set; }
 
-        [Required]
         [ScaffoldColumn(false)]
-        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy HH:mm}")]
         [DisplayName("Create Time")]
         public DateTime CreateDateTime { get; set; }
     }

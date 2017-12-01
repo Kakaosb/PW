@@ -4,8 +4,9 @@ var baseUrl = 'http://localhost/debugPWApi';
 
 var tokenKey = "tokenInfoPW";
 var loggedIn = sessionStorage.getItem('tokenInfoPW') != null ? true : false;
+var balance = 0;
 
-var pWApp = angular.module('pWApp', ['ngRoute']); 
+var pWApp = angular.module('pWApp', ['ngRoute']);
 
 pWApp.config(function ($routeProvider) {
     $routeProvider
@@ -32,8 +33,11 @@ pWApp.config(function ($routeProvider) {
 });
 
 pWApp.controller('mainController', function ($scope, $rootScope) {
-    
-    $rootScope.prop = { loggedIn: loggedIn };
+
+    $rootScope.prop = {
+        loggedIn: loggedIn,
+        Balance: balance
+    };
 
     $scope.logout = function () {
         sessionStorage.removeItem(tokenKey);
@@ -43,17 +47,21 @@ pWApp.controller('mainController', function ($scope, $rootScope) {
 });
 
 pWApp.controller('registerController', function ($scope) {
-   
+
     $scope.register = register;
 });
 
 pWApp.controller('loginController', function ($scope, $rootScope) {
-   
+
     $scope.loggedInFunc = function () {
-        $rootScope.prop = { loggedIn: loggedInFunc() };
+
+        $rootScope.prop = {
+            loggedIn: loggedInFunc(),
+            Balance: balance
+        };
     }
 });
 
 pWApp.controller('operationsController', function ($scope) {
-
+    $scope.passPWFunc = passPW;
 });

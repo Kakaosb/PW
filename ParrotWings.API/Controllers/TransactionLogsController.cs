@@ -27,42 +27,41 @@ namespace ParrotWings.API.Controllers
             try
             {
                 var currentUserName = User.Identity.Name;
-                //var currentUserName = "test3 test3";
 
                 var entityCurrentUser = db.Users
                     .FirstOrDefault(el => el.Name == currentUserName);
 
-                var logsList = new List<OperationsLogTable>();
+                if (entityCurrentUser == null) return "Account Error. Contact your administrator.";
 
-                if (entityCurrentUser != null)
-                {
-                    var userId = entityCurrentUser.Id;
+                var userId = entityCurrentUser.Id;
 
-                    var list = db.TransactionLogs
-                        .Where(el => el.RecipientId == userId || el.SenderId == userId)
-                        .ToList();
+                var list = db.TransactionLogs
+                    .Where(el => el.RecipientId == userId || el.SenderId == userId)
+                    .ToList();
 
-                    logsList = list
-                        .Select(el =>
-                            new OperationsLogTable()
-                            {
-                                Sum = el.RecipientId == userId ? el.Sum : el.Sum * (-1),
-                                IsDebet = el.RecipientId == userId,
-                                UserName = el.RecipientId == userId ? el.Sender.Name : el.Recipient.Name,
-                                OperationDate = el.CreateDateTime.ToString("G")
-                            }
-                        )
-                        .OrderByDescending(el => el.OperationDate)
-                        .ToList();
+                var logsList = list
+                    .Select(el =>
+                        new OperationsLogTable()
+                        {
+                            Sum = el.RecipientId == userId ? el.Sum : el.Sum * (-1),
 
-                }
+                            TransferType = el.RecipientId == userId
+                            ? TransferType.Debit.ToString()
+                            : TransferType.Credit.ToString(),
+
+                            UserName = el.RecipientId == userId ? el.Sender.Name : el.Recipient.Name,
+                            OperationDate = el.CreateDateTime.ToString("G")
+                        }
+                    )
+                    .OrderByDescending(el => el.OperationDate)
+                    .ToList();
 
                 return JsonConvert.SerializeObject(logsList);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return "На сервере произошла ошибка. Обратитесь к администратотру";
+                return "Server Error. Contact your administrator.";
             }
         }
 
@@ -115,48 +114,44 @@ namespace ParrotWings.API.Controllers
         }
 
         // POST: api/TransactionLogs
+        // [Route("PostTransactionLog")]
+        [HttpPost]
         [ResponseType(typeof(TransactionLog))]
-        public IHttpActionResult PostTransactionLog(decimal sum, int recipientId)
+        public IHttpActionResult PostTransactionLog(TransactionLog transactionLog)
         {
             try
             {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
                 var currentUserName = User.Identity.Name;
 
                 var entityCurrentUser = db.Users
                     .FirstOrDefault(el => el.Name == currentUserName);
 
                 var recipient = db.Users
-                    .FirstOrDefault(el => el.Id == recipientId);
+                    .FirstOrDefault(el => el.Id == transactionLog.RecipientId);
 
-                if (entityCurrentUser != null & recipient != null)
-                {
-                    if (entityCurrentUser.Balance < sum)
-                    {
-                    }
-                    else
-                    {
-                        entityCurrentUser.Balance -= sum;
-                        recipient.Balance += sum;
+                if (entityCurrentUser == null || recipient == null) return BadRequest("On of the parties not found. Contact your administrator.");
+                if (entityCurrentUser.Id == transactionLog.RecipientId) return BadRequest("You can not send money to yourself");
+                if (entityCurrentUser.Balance < transactionLog.Sum) return BadRequest("You don't have enough PW");
 
-                        db.SaveChanges();
-                    }
-                }
-                else
-                {
+                entityCurrentUser.Balance -= transactionLog.Sum;
+                recipient.Balance += transactionLog.Sum;
+                
+                transactionLog.SenderId = entityCurrentUser.Id;
+                transactionLog.CreateDateTime = DateTime.Now;
 
-                }
+                db.TransactionLogs.Add(transactionLog);
+
+                db.SaveChanges();
+              
+                return Ok();
+
             }
-            catch
+            catch (Exception ex)
             {
-
+                return BadRequest("Server Error. Contact your administrator." + ex.Message);
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-          
-            return Ok();
         }
 
         // DELETE: api/TransactionLogs/5

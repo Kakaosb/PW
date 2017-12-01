@@ -11,16 +11,10 @@
             <input type="submit" id="submitLogin" value="Логин" ng-click="loggedInFunc()" />
         </div>
     </div>
-
-    <p>{{ message }} тут</p>
 </div>
 
 <script type="text/javascript">
-    //$(function () {
-    //...........................
-
    
-
     var result;
 
     function loggedInFunc() {
@@ -39,49 +33,16 @@
             $('.userName').text(data.userName);
             $('.userInfo').css('display', 'block');
             $('.loginForm').css('display', 'none');
-            // сохраняем в хранилище sessionStorage токен доступа
+
             sessionStorage.setItem(tokenKey, data.access_token);
-            console.log(data.access_token);
 
             result = true;
         }).fail(function (data) {
-            alert('При логине возникла ошибка');
+            alert(JSON.parse(data.responseText).Message);
             result = false;
         });
 
         return result;
     }
 
-    //$('#submitLogin').click(function (e) {
-    //    e.preventDefault();
-    //    var loginData = {
-    //        grant_type: 'password',
-    //        username: $('#emailLogin').val(),
-    //        password: $('#passwordLogin').val()
-    //    };
-
-    //    $.ajax({
-    //        type: 'POST',
-    //        url: baseUrl + '/Token',
-    //        data: loginData
-    //    }).success(function (data) {
-    //        $('.userName').text(data.userName);
-    //        $('.userInfo').css('display', 'block');
-    //        $('.loginForm').css('display', 'none');
-    //        // сохраняем в хранилище sessionStorage токен доступа
-    //        sessionStorage.setItem(tokenKey, data.access_token);
-    //        console.log(data.access_token);
-
-    //        loggedIn = true;
-    //    }).fail(function (data) {
-    //        alert('При логине возникла ошибка');
-    //    });
-    //});
-
-    //$('#logOut').click(function (e) {
-    //    e.preventDefault();
-    //    sessionStorage.removeItem(tokenKey);
-    //    loggedIn = false;
-    //});
-    //})
-</script>
+  </script>

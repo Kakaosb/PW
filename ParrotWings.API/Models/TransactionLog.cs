@@ -16,7 +16,6 @@ namespace ParrotWings.API.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         public int SenderId { get; set; }
         public virtual User Sender { get; set; }
 
@@ -27,8 +26,6 @@ namespace ParrotWings.API.Models
         [Required]
         public decimal Sum { get; set; }
 
-        [Required]
-        [DataType(DataType.DateTime)]
         public DateTime CreateDateTime { get; set; }
     }
 }

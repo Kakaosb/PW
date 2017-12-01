@@ -20,43 +20,52 @@
         width: 91%;
         margin-left: 75px;
     }
+
+    th {
+        text-align: center;
+    }
+
+    .red {
+        color: red;
+    }
 </style>
 
 
-<div class="jumbotron text-center" >
+<div class="jumbotron text-center">
     <h3>Operations</h3>
 
     <div class="row">
         <div class="passForm">
-            <h3>Перечислить PW</h3>
-            <label>Пользователь</label><br />
+            <h3>Send PW</h3>
+            <label>User  &nbsp;</label>
             <input type="search" id="userPass" /> <br /><br />
-            <label>Сумма</label><br />
+            <label>Sum &nbsp;</label>
             <input type="number" id="sumPass" /><br /><br />
-            <input type="submit" id="submitPass" value="Перечислить" />
+            <input type="submit" id="submitPass" value="OK"  ng-click="passPWFunc()" />
         </div>
     </div>
-
+    <br />
+    <br />
     <div class="row">
         <div class="history">
-            <h3>История транзакций</h3>
+            <h3>Operations History</h3>
             <table id="operations" class="display" cellspacing="0" width="100%">
                 <thead>
-                <tr>
-                    <th>Sum</th>
-                    <th>Debit/Credit</th>
-                    <th>User Name</th>
-                    <th>Operation Date</th>
-                </tr>
+                    <tr>
+                        <th>Sum</th>
+                        <th>Debit/Credit</th>
+                        <th>User Name</th>
+                        <th>Operation Date</th>
+                    </tr>
                 </thead>
-                
+
                 <tfoot>
-                <tr>
-                    <th>Sum</th>
-                    <th>Debit/Credit</th>
-                    <th>User Name</th>
-                    <th>Operation Date</th>
-                </tr>
+                    <tr>
+                        <th>Sum</th>
+                        <th>Debit/Credit</th>
+                        <th>User Name</th>
+                        <th>Operation Date</th>
+                    </tr>
                 </tfoot>
             </table>
         </div>
@@ -64,8 +73,29 @@
 </div>
 
 <script>
-    function getLogs() {
+    var dataTable = getLogs();
 
+    $('#operations').DataTable(
+        {
+            data: dataTable,
+            columns: [
+                { data: 'Sum' },
+                { data: 'TransferType' },
+                { data: 'UserName' },
+                { data: 'OperationDate' }
+            ],
+
+            createdRow: function (row, data, index) {
+
+                console.log(data[0]);
+
+                if (data[0] < 0) {
+                    $('td', row).eq(0).addClass('red');
+                }
+            }
+        });
+
+    function getLogs() {
         var result;
 
         $.ajax({
@@ -75,31 +105,61 @@
                 var token = sessionStorage.getItem(tokenKey);
                 xhr.setRequestHeader("Authorization", "Bearer " + token);
             },
-            async:false
+            async: false
         }).success(function (data) {
-            
+
             result = JSON.parse(data);
 
         }).fail(function (data) {
-            alert(data);
-            });
+            alert(JSON.parse(data.responseText).Message);
+        });
 
         return result;
     }
 
-    var tt = getLogs();
+  
 
-    console.log(tt);
+    //dataTable.push({
+    //    'Sum': '88888',
+    //    'TransferType': 'ytyt',
+    //    'UserName': 'tyt',
+    //    'OperationDate': 'jhgjh'
+    //});
 
-    $('#operations').DataTable(
-        {
-            data: tt,
-            columns: [
-                { data: 'Sum' },
-                { data: 'IsDebet' },
-                { data: 'UserName' },
-                { data: 'OperationDate' }
-            ]
+    //console.log(dataTable);
+
+    //function reDraw() {
+    //    $('#operations').row.add([
+    //        '88888',
+    //        'ytyt',
+    //        'tyt',
+    //        'jhgjh'
+    //    ]).draw(false);
+    //}
+
+    function passPW() {
+        var passData = {
+            RecipientId: 1, //$('#userPass').val(),
+            Sum: 50 //$('#sumPass').val()
+        };
+
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(passData),
+            url: baseUrl + '/api/TransactionLogs/PostTransactionLog',
+            beforeSend: function (xhr) {
+                var token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).success(function (data) {
+            
+
+            //result = true;
+        }).fail(function (data) {
+            alert(JSON.parse(data.responseText).Message);
         });
 
+        //return result;
+    }
 </script>
