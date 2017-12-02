@@ -18,6 +18,7 @@ using ParrotWings.API.Models;
 using ParrotWings.API.Providers;
 using ParrotWings.API.Results;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace ParrotWings.API.Controllers
 {
@@ -53,19 +54,18 @@ namespace ParrotWings.API.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
-        [Route("GetBalance")]
-        public string GetBalance()
+        [Route("GetInfo")]
+        public string GetInfo()
         {
             try
             {
                 ParrotWingsContext db = new ParrotWingsContext();
                 var currentUserName = User.Identity.Name;
 
-                var balance = db.Users
-                    .FirstOrDefault(el => el.Name == currentUserName)
-                    .Balance;
+                var user = db.Users
+                    .FirstOrDefault(el => el.Name == currentUserName);
 
-                return balance.ToString();
+                return JsonConvert.SerializeObject(user);
             }
             catch (Exception)
             {

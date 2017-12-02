@@ -35,6 +35,7 @@
             </div>
 
             <ul class="nav navbar-nav navbar-right">
+                <li ng-show="prop.loggedIn"><i class="fa fa-shield"></i> <a><b>{{prop.UserName}}</b></a></li>
                 <li ng-show="prop.loggedIn"><i class="fa fa-shield"></i> <a>My Balance: <b>{{prop.Balance}}</b></a></li>
                 <li ng-show="prop.loggedIn"><a href="#!Operations"><i class="fa fa-shield"></i> My operations</a></li>
                 <li ng-show="prop.loggedIn"><a href="" ng-click="logout()"><i class="fa fa-comment"></i> Logout</a></li>

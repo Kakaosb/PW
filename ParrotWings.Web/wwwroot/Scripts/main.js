@@ -3,6 +3,7 @@
 var tokenKey = "tokenInfoPW";
 var loggedIn = sessionStorage.getItem('tokenInfoPW') != null ? true : false;
 var balance = 0;
+var userName = "";
 
 var pWApp = angular.module('pWApp', ['ngRoute']);
 
@@ -33,7 +34,8 @@ pWApp.config(function ($routeProvider) {
 pWApp.controller('mainController', function ($scope, $rootScope, $window) {
     $rootScope.prop = {
         loggedIn: loggedIn,
-        Balance: balance
+        Balance: balance,
+        UserName: userName
     };
 
     $scope.logout = function () {
@@ -55,9 +57,14 @@ pWApp.controller('loginController', function ($scope, $rootScope, $window) {
     $scope.loggedInFunc = function () {
 
         if (loggedInFunc()) {
+            var info = getInfo();
+          
+            userName = info.Name;
+
             $rootScope.prop = {
                 loggedIn: true,
-                Balance: getBalance()
+                Balance: info.Balance,
+                UserName: info.Name
         };
             $window.location.href = '#!/Operations';
         }
@@ -65,18 +72,14 @@ pWApp.controller('loginController', function ($scope, $rootScope, $window) {
 });
 
 pWApp.controller('operationsController', function ($scope, $rootScope) {
-    $rootScope.prop = {
-        loggedIn: true,
-        Balance: getBalance()
-    };
-
-    $scope.passPWFunc = function () {
+   $scope.passPWFunc = function () {
         const balance = sentPW();
 
         if (balance != null) {
             $rootScope.prop = {
                 loggedIn: loggedIn,
-                Balance: balance
+                Balance: balance,
+                UserName: userName
             };
             $('#recipient_id').val("");
             $('#recipient').val("");
@@ -85,11 +88,11 @@ pWApp.controller('operationsController', function ($scope, $rootScope) {
     }
 });
 
-function getBalance() {
+function getInfo() {
     var result;
     $.ajax({
         type: 'GET',
-        url: baseUrl + '/api/Account/GetBalance',
+        url: baseUrl + '/api/Account/GetInfo',
         beforeSend: function (xhr) {
             const token = sessionStorage.getItem(tokenKey);
             xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -97,7 +100,8 @@ function getBalance() {
         async: false
     }).success(function (data) {
 
-        result = data;
+        result = JSON.parse(data);
+        console.log(result);
 
     }).fail(function (data) {
         alert(JSON.parse(data.responseText).Message);
