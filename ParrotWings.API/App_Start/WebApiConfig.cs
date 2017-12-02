@@ -27,8 +27,9 @@ namespace ParrotWings.API
             );
 
             config.Routes.MapHttpRoute(
-                name: "TransactionLogs",
-                routeTemplate: "api/{controller}/{action}"
+                name: "Transaction",
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { id = RouteParameter.Optional }
             );
         }
     }

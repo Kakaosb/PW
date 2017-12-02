@@ -15,9 +15,9 @@
 
 <script type="text/javascript">
    
-    var result;
+   function loggedInFunc() {
+        var result;
 
-    function loggedInFunc() {
         var loginData = {
             grant_type: 'password',
             username: $('#nameLogin').val(),
@@ -30,11 +30,7 @@
             data: loginData,
             async: false
         }).success(function (data) {
-            $('.userName').text(data.userName);
-            $('.userInfo').css('display', 'block');
-            $('.loginForm').css('display', 'none');
-
-            sessionStorage.setItem(tokenKey, data.access_token);
+           sessionStorage.setItem(tokenKey, data.access_token);
 
             result = true;
         }).fail(function (data) {

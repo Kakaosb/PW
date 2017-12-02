@@ -1,6 +1,4 @@
-﻿//var baseUrl = 'http://localhost/pwAPI/';
-
-var baseUrl = 'http://localhost/debugPWApi';
+﻿var baseUrl = 'http://localhost/debugPWApi';
 
 var tokenKey = "tokenInfoPW";
 var loggedIn = sessionStorage.getItem('tokenInfoPW') != null ? true : false;
@@ -32,8 +30,7 @@ pWApp.config(function ($routeProvider) {
         });
 });
 
-pWApp.controller('mainController', function ($scope, $rootScope) {
-
+pWApp.controller('mainController', function ($scope, $rootScope, $window) {
     $rootScope.prop = {
         loggedIn: loggedIn,
         Balance: balance
@@ -41,27 +38,70 @@ pWApp.controller('mainController', function ($scope, $rootScope) {
 
     $scope.logout = function () {
         sessionStorage.removeItem(tokenKey);
-
         $rootScope.prop = { loggedIn: false };
+        $window.location.href = '#!/Login';
     }
 });
 
-pWApp.controller('registerController', function ($scope) {
-
-    $scope.register = register;
+pWApp.controller('registerController', function ($scope, $rootScope, $window) {
+    $scope.register = function () {
+        if (register()) {
+            $window.location.href = '#!/Login';
+        }
+    }
 });
 
-pWApp.controller('loginController', function ($scope, $rootScope) {
-
+pWApp.controller('loginController', function ($scope, $rootScope, $window) {
     $scope.loggedInFunc = function () {
 
-        $rootScope.prop = {
-            loggedIn: loggedInFunc(),
-            Balance: balance
+        if (loggedInFunc()) {
+            $rootScope.prop = {
+                loggedIn: true,
+                Balance: getBalance()
         };
+            $window.location.href = '#!/Operations';
+        }
     }
 });
 
-pWApp.controller('operationsController', function ($scope) {
-    $scope.passPWFunc = passPW;
+pWApp.controller('operationsController', function ($scope, $rootScope) {
+    $rootScope.prop = {
+        loggedIn: true,
+        Balance: getBalance()
+    };
+
+    $scope.passPWFunc = function () {
+        const balance = sentPW();
+
+        if (balance != null) {
+            $rootScope.prop = {
+                loggedIn: loggedIn,
+                Balance: balance
+            };
+            $('#recipient_id').val("");
+            $('#recipient').val("");
+            $('#sum').val("");
+        }
+    }
 });
+
+function getBalance() {
+    var result;
+    $.ajax({
+        type: 'GET',
+        url: baseUrl + '/api/Account/GetBalance',
+        beforeSend: function (xhr) {
+            const token = sessionStorage.getItem(tokenKey);
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        async: false
+    }).success(function (data) {
+
+        result = data;
+
+    }).fail(function (data) {
+        alert(JSON.parse(data.responseText).Message);
+    });
+
+    return result;
+}

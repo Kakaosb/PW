@@ -28,6 +28,29 @@
     .red {
         color: red;
     }
+
+    .green {
+        color: green;
+    }
+
+    #hint {
+        display: inline;
+        margin-right: -174px;
+        font-size: 14px;
+    }
+
+    .spinner_user {
+        left: 48%;
+        top: 56%;
+        display: none;
+    }
+
+    .spinner_table {
+        left: 48%;
+        top: 131%;
+        z-index: 9999;
+        display: none;
+    }
 </style>
 
 
@@ -35,13 +58,16 @@
     <h3>Operations</h3>
 
     <div class="row">
-        <div class="passForm">
+        <div>
             <h3>Send PW</h3>
             <label>User  &nbsp;</label>
-            <input type="search" id="userPass" /> <br /><br />
+            <div class="spinner spinner_user"></div>
+            <input type="search" id="recipient" /><span id="hint">*enter at least 3 characters</span>
+            <br /><br />
+            <input hidden="hidden" id="recipient_id" />
             <label>Sum &nbsp;</label>
-            <input type="number" id="sumPass" /><br /><br />
-            <input type="submit" id="submitPass" value="OK"  ng-click="passPWFunc()" />
+            <input type="number" id="sum" /><br /><br />
+            <input type="submit" value="OK" ng-click="passPWFunc()" />
         </div>
     </div>
     <br />
@@ -53,17 +79,17 @@
                 <thead>
                     <tr>
                         <th>Sum</th>
-                        <th>Debit/Credit</th>
-                        <th>User Name</th>
+                        <th><span class="green">Debit</span>/<span class="red">Credit</span></th>
+                        <th><span class="green">From</span>/<span class="red">To</span></th>
                         <th>Operation Date</th>
                     </tr>
                 </thead>
-
+                <div class="spinner spinner_table"></div>
                 <tfoot>
                     <tr>
                         <th>Sum</th>
-                        <th>Debit/Credit</th>
-                        <th>User Name</th>
+                        <th><span class="green">Debit</span>/<span class="red">Credit</span></th>
+                        <th><span class="green">From</span>/<span class="red">To</span></th>
                         <th>Operation Date</th>
                     </tr>
                 </tfoot>
@@ -73,9 +99,110 @@
 </div>
 
 <script>
+
+    /////////////////////SEND PW BLOCK/////////////////////////////
+    $(function () {
+        $("#recipient").autocomplete({
+            source: []
+        });
+
+        $("#recipient").keyup(function (event) {
+            const term = $("#recipient").val();
+
+            if (term.length === 3) {
+                const users = getUsersNames(term);
+                var collection = [];
+
+                users.forEach(function (item, i, arr) {
+                    collection.push(
+                        {
+                            "label": item.Name,
+                            "value": item.Name,
+                            "id": item.Id
+                        });
+                });
+
+                $("#recipient").autocomplete({
+                    source: collection,
+                    change: function(event, ui) {
+                        if (ui.item) {
+                            $("#recipient_id").val(ui.item.id);
+                        }
+                    }
+                });
+            }
+        });
+
+        function getUsersNames(term) {
+            $('.spinner_user').css("display", "block");
+            var result;
+
+            $.ajax({
+                type: 'GET',
+                url: baseUrl + '/api/Transaction/GetUsers?term=' + term,
+                beforeSend: function (xhr) {
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                async: false
+            }).success(function (data) {
+                $('.spinner_user').css("display", "none");
+                result = JSON.parse(data);
+
+            }).fail(function (data) {
+                alert(JSON.parse(data.responseText).Message);
+            });
+
+            return result;
+        }
+    });
+
+    function sentPW() {
+        const recipient_id = $('#recipient_id').val();
+        const sum = $('#sum').val();
+        if (!recipient_id) {
+            alert("You must select an existing user");
+            return;
+        }
+
+        if (!sum || sum<=0) {
+            alert("The sum must be > 0");
+            return;
+        }
+
+        $('.spinner_table').css("display", "block");
+        var result;
+        const passData = {
+            RecipientId: recipient_id,
+            Sum: sum
+        };
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(passData),
+            url: baseUrl + '/api/Transaction/PostTransactionLog',
+            async: false,
+            beforeSend: function (xhr) {
+                const token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).success(function (data) {
+            $('.spinner_table').css("display", "none");
+            alert("PW sent successfully");
+            result = data;
+
+        }).fail(function (data) {
+            alert(JSON.parse(data.responseText).Message);
+            result = false;
+        });
+
+        return result;
+    }
+
+    /////////////////////SHOW OPERATIONS BLOCK////////////////////
     var dataTable = getLogs();
 
-    $('#operations').DataTable(
+    var table =  $('#operations').DataTable(
         {
             data: dataTable,
             columns: [
@@ -86,23 +213,27 @@
             ],
 
             createdRow: function (row, data, index) {
-
-                console.log(data[0]);
-
-                if (data[0] < 0) {
-                    $('td', row).eq(0).addClass('red');
+                if (data.Sum < 0) {
+                    $('td', row).addClass('red');
+                } else {
+                    $('td', row).addClass('green');
                 }
             }
         });
+
+ //// Sort by column 1 and then re-draw
+ //   table
+ //       .order( [ 3, 'desc' ] )
+ //       .draw();
 
     function getLogs() {
         var result;
 
         $.ajax({
             type: 'GET',
-            url: baseUrl + '/api/TransactionLogs/GetTransactionLogs',
+            url: baseUrl + '/api/Transaction/GetTransactionLogs',
             beforeSend: function (xhr) {
-                var token = sessionStorage.getItem(tokenKey);
+                const token = sessionStorage.getItem(tokenKey);
                 xhr.setRequestHeader("Authorization", "Bearer " + token);
             },
             async: false
@@ -115,51 +246,5 @@
         });
 
         return result;
-    }
-
-  
-
-    //dataTable.push({
-    //    'Sum': '88888',
-    //    'TransferType': 'ytyt',
-    //    'UserName': 'tyt',
-    //    'OperationDate': 'jhgjh'
-    //});
-
-    //console.log(dataTable);
-
-    //function reDraw() {
-    //    $('#operations').row.add([
-    //        '88888',
-    //        'ytyt',
-    //        'tyt',
-    //        'jhgjh'
-    //    ]).draw(false);
-    //}
-
-    function passPW() {
-        var passData = {
-            RecipientId: 1, //$('#userPass').val(),
-            Sum: 50 //$('#sumPass').val()
-        };
-
-        $.ajax({
-            type: 'POST',
-            contentType: "application/json",
-            data: JSON.stringify(passData),
-            url: baseUrl + '/api/TransactionLogs/PostTransactionLog',
-            beforeSend: function (xhr) {
-                var token = sessionStorage.getItem(tokenKey);
-                xhr.setRequestHeader("Authorization", "Bearer " + token);
-            }
-        }).success(function (data) {
-            
-
-            //result = true;
-        }).fail(function (data) {
-            alert(JSON.parse(data.responseText).Message);
-        });
-
-        //return result;
     }
 </script>

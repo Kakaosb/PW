@@ -18,6 +18,8 @@
 
 <script type="text/javascript">
     function register() {
+        var result;
+
         var data = {
             Name: $('#name').val(),
             Email: $('#email').val(),
@@ -29,12 +31,15 @@
             type: 'POST',
             url: baseUrl + '/api/Account/Register',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(data)
-        }).success(function (data) {
-            alert("Successful");
-
-        }).fail(function (data) {
-            alert(JSON.parse(data.responseText).Message);
+            data: JSON.stringify(data),
+            async: false
+        }).complete(function (xhr, textStatus) {
+            if (xhr.status === 200) {
+                result = true;
+                alert("Successfully! Now you can log in.");
+            } 
         });
+        return result;
     }
+
 </script>

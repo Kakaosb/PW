@@ -15,12 +15,37 @@ using ParrotWings.API.Models.ModelHelpers;
 
 namespace ParrotWings.API.Controllers
 {
-    [RoutePrefix("api/TransactionLogs")]
-    public class TransactionLogsController : ApiController
+    [RoutePrefix("api/Transaction")]
+    public class TransactionController : ApiController
     {
         private ParrotWingsContext db = new ParrotWingsContext();
 
-        // GET: api/TransactionLogs
+       [Route("GetUsers")]
+        public string GetUsers(string term)
+        {
+            try
+            {
+                var currentUserName = User.Identity.Name;
+
+                var users = db.Users
+                    .Where(el => el.Name.StartsWith(term)
+                        && el.Name != currentUserName)
+                    .Select(el => new
+                    {
+                        el.Id,
+                        el.Name
+                    })
+                    .ToList();
+
+                return JsonConvert.SerializeObject(users);
+            }
+            catch (Exception)
+            {
+                return "Server Error. Contact your administrator.";
+            }
+        }
+
+        // GET: api/Transaction
         [Route("GetTransactionLogs")]
         public string GetTransactionLogs()
         {
@@ -65,7 +90,7 @@ namespace ParrotWings.API.Controllers
             }
         }
 
-        // GET: api/TransactionLogs/5
+        // GET: api/Transaction/5
         [ResponseType(typeof(TransactionLog))]
         public IHttpActionResult GetTransactionLog(int id)
         {
@@ -78,7 +103,7 @@ namespace ParrotWings.API.Controllers
             return Ok(transactionLog);
         }
 
-        // PUT: api/TransactionLogs/5
+        // PUT: api/Transaction/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutTransactionLog(int id, TransactionLog transactionLog)
         {
@@ -113,8 +138,7 @@ namespace ParrotWings.API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/TransactionLogs
-        // [Route("PostTransactionLog")]
+        // POST: api/Transaction
         [HttpPost]
         [ResponseType(typeof(TransactionLog))]
         public IHttpActionResult PostTransactionLog(TransactionLog transactionLog)
@@ -131,30 +155,30 @@ namespace ParrotWings.API.Controllers
                 var recipient = db.Users
                     .FirstOrDefault(el => el.Id == transactionLog.RecipientId);
 
-                if (entityCurrentUser == null || recipient == null) return BadRequest("On of the parties not found. Contact your administrator.");
-                if (entityCurrentUser.Id == transactionLog.RecipientId) return BadRequest("You can not send money to yourself");
+                if (entityCurrentUser == null || recipient == null) return BadRequest("One of the parties not found. Contact your administrator.");
+                if (entityCurrentUser.Id == transactionLog.RecipientId) return BadRequest("You can not send PW to yourself");
                 if (entityCurrentUser.Balance < transactionLog.Sum) return BadRequest("You don't have enough PW");
 
                 entityCurrentUser.Balance -= transactionLog.Sum;
                 recipient.Balance += transactionLog.Sum;
-                
+
                 transactionLog.SenderId = entityCurrentUser.Id;
                 transactionLog.CreateDateTime = DateTime.Now;
 
                 db.TransactionLogs.Add(transactionLog);
 
                 db.SaveChanges();
-              
-                return Ok();
+
+                return Ok(entityCurrentUser.Balance.ToString());
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest("Server Error. Contact your administrator." + ex.Message);
+                return BadRequest("Server Error. Contact your administrator.");
             }
         }
 
-        // DELETE: api/TransactionLogs/5
+        // DELETE: api/Transaction/5
         [ResponseType(typeof(TransactionLog))]
         public IHttpActionResult DeleteTransactionLog(int id)
         {

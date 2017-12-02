@@ -72,6 +72,9 @@
     <Content Include="wwwroot\Content\images\sort_asc.png" />
     <Content Include="wwwroot\Content\images\sort_both.png" />
     <Content Include="wwwroot\Content\images\sort_desc.png" />
+    <Content Include="wwwroot\Content\images\Spinner.gif" />
+    <Content Include="wwwroot\Content\images\Spinner.svg" />
+    <Content Include="wwwroot\Content\jquery-ui.min.css" />
     <Content Include="wwwroot\Scripts\angular\angular-route.js" />
     <Content Include="wwwroot\Scripts\angular\angular-route.min.js" />
     <Content Include="wwwroot\Content\bootstrap-theme.css" />

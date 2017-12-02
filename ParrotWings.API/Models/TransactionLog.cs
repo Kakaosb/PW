@@ -24,6 +24,7 @@ namespace ParrotWings.API.Models
         public virtual User Recipient { get; set; }
 
         [Required]
+        [Range(1.00, Double.MaxValue)]
         public decimal Sum { get; set; }
 
         public DateTime CreateDateTime { get; set; }

@@ -17,6 +17,7 @@ using Microsoft.Owin.Security.OAuth;
 using ParrotWings.API.Models;
 using ParrotWings.API.Providers;
 using ParrotWings.API.Results;
+using System.Linq;
 
 namespace ParrotWings.API.Controllers
 {
@@ -51,6 +52,26 @@ namespace ParrotWings.API.Controllers
         }
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
+
+        [Route("GetBalance")]
+        public string GetBalance()
+        {
+            try
+            {
+                ParrotWingsContext db = new ParrotWingsContext();
+                var currentUserName = User.Identity.Name;
+
+                var balance = db.Users
+                    .FirstOrDefault(el => el.Name == currentUserName)
+                    .Balance;
+
+                return balance.ToString();
+            }
+            catch (Exception)
+            {
+                return "Server Error. Contact your administrator.";
+            }
+        }
 
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
