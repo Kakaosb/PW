@@ -1,6 +1,7 @@
-﻿var baseUrl = 'http://localhost/debugPWApi';
+﻿const baseUrl = 'http://localhost/debugPWApi';
 
-var tokenKey = "tokenInfoPW";
+const tokenKey = "tokenInfoPW";
+const userNameKey = "userName";
 var loggedIn = sessionStorage.getItem('tokenInfoPW') != null ? true : false;
 var balance = 0;
 var userName = "";
@@ -40,6 +41,7 @@ pWApp.controller('mainController', function ($scope, $rootScope, $window) {
 
     $scope.logout = function () {
         sessionStorage.removeItem(tokenKey);
+        sessionStorage.removeItem(userNameKey);
         $rootScope.prop = { loggedIn: false };
         $window.location.href = '#!/Login';
     }
@@ -58,13 +60,13 @@ pWApp.controller('loginController', function ($scope, $rootScope, $window) {
 
         if (loggedInFunc()) {
             var info = getInfo();
-          
             userName = info.Name;
+            sessionStorage.setItem(userNameKey, userName);
 
             $rootScope.prop = {
                 loggedIn: true,
                 Balance: info.Balance,
-                UserName: info.Name //cохранить имя пользователя в sessionStorage
+                UserName: userName
         };
             $window.location.href = '#!/Operations';
         }
@@ -77,7 +79,7 @@ pWApp.controller('operationsController', function ($scope, $rootScope) {
     $rootScope.prop = {
         loggedIn: loggedIn,
         Balance: info.Balance,
-        UserName: info.Name //cохранить имя пользователя в sessionStorage
+        UserName: sessionStorage.getItem(userNameKey)
     };
 
    $scope.passPWFunc = function () {
@@ -90,7 +92,7 @@ pWApp.controller('operationsController', function ($scope, $rootScope) {
             $rootScope.prop = {
                 loggedIn: loggedIn,
                 Balance: balance,
-                UserName: info.Name //cохранить имя пользователя в sessionStorage
+                UserName: sessionStorage.getItem(userNameKey)
             };
             $('#recipient_id').val("");
             $('#recipient').val("");
