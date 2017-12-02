@@ -28,5 +28,9 @@ namespace ParrotWings.API.Models
         public decimal Sum { get; set; }
 
         public DateTime CreateDateTime { get; set; }
+
+       public decimal TotalSender { get; set; }
+
+        public decimal TotalRecipient { get; set; }
     }
 }

@@ -82,6 +82,7 @@
                         <th><span class="green">Debit</span>/<span class="red">Credit</span></th>
                         <th><span class="green">From</span>/<span class="red">To</span></th>
                         <th>Operation Date</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <div class="spinner spinner_table"></div>
@@ -91,6 +92,7 @@
                         <th><span class="green">Debit</span>/<span class="red">Credit</span></th>
                         <th><span class="green">From</span>/<span class="red">To</span></th>
                         <th>Operation Date</th>
+                        <th>Total</th>
                     </tr>
                 </tfoot>
             </table>
@@ -209,7 +211,8 @@
                 { data: 'Sum' },
                 { data: 'TransferType' },
                 { data: 'UserName' },
-                { data: 'OperationDate' }
+                { data: 'OperationDate' },
+                { data: 'Total' }
             ],
 
             createdRow: function (row, data, index) {

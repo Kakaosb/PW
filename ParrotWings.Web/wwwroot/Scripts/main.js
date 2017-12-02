@@ -64,7 +64,7 @@ pWApp.controller('loginController', function ($scope, $rootScope, $window) {
             $rootScope.prop = {
                 loggedIn: true,
                 Balance: info.Balance,
-                UserName: info.Name
+                UserName: info.Name //cохранить имя пользователя в sessionStorage
         };
             $window.location.href = '#!/Operations';
         }
@@ -72,14 +72,25 @@ pWApp.controller('loginController', function ($scope, $rootScope, $window) {
 });
 
 pWApp.controller('operationsController', function ($scope, $rootScope) {
+    var info = getInfo();
+
+    $rootScope.prop = {
+        loggedIn: loggedIn,
+        Balance: info.Balance,
+        UserName: info.Name //cохранить имя пользователя в sessionStorage
+    };
+
    $scope.passPWFunc = function () {
         const balance = sentPW();
 
         if (balance != null) {
+
+            var info = getInfo();
+
             $rootScope.prop = {
                 loggedIn: loggedIn,
                 Balance: balance,
-                UserName: userName
+                UserName: info.Name //cохранить имя пользователя в sessionStorage
             };
             $('#recipient_id').val("");
             $('#recipient').val("");

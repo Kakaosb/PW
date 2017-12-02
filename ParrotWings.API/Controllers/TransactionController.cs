@@ -75,7 +75,8 @@ namespace ParrotWings.API.Controllers
                             : TransferType.Credit.ToString(),
 
                             UserName = el.RecipientId == userId ? el.Sender.Name : el.Recipient.Name,
-                            OperationDate = el.CreateDateTime.ToString("G")
+                            OperationDate = el.CreateDateTime.ToString("G"),
+                            Total = el.RecipientId == userId ? el.TotalRecipient : el.TotalSender
                         }
                     )
                     .OrderByDescending(el => el.OperationDate)
@@ -164,6 +165,8 @@ namespace ParrotWings.API.Controllers
 
                 transactionLog.SenderId = entityCurrentUser.Id;
                 transactionLog.CreateDateTime = DateTime.Now;
+                transactionLog.TotalRecipient = recipient.Balance;
+                transactionLog.TotalSender = entityCurrentUser.Balance;
 
                 db.TransactionLogs.Add(transactionLog);
 

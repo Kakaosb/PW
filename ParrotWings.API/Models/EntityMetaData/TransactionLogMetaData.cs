@@ -23,5 +23,11 @@ namespace ParrotWings.API.Models.EntityMetaData
         [ScaffoldColumn(false)]
         [DisplayName("Create Time")]
         public DateTime CreateDateTime { get; set; }
+
+        [DisplayName("Total (Sender)")]
+        public decimal TotalSender { get; set; }
+
+        [DisplayName("Total (Recipient)")]
+        public decimal TotalRecipient { get; set; }
     }
 }

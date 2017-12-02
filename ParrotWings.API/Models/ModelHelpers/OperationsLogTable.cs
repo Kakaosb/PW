@@ -11,6 +11,7 @@ namespace ParrotWings.API.Models.ModelHelpers
         public string TransferType { get; set; }
         public string OperationDate { get; set; }
         public string UserName { get; set; }
+        public decimal Total { get; set; }
     }
 
     public enum TransferType

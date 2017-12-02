@@ -24,8 +24,6 @@ namespace ParrotWings.API.Models
         public string Name { get; set; }
         
         public decimal Balance { get; set; }
-      
-        public bool Active { get; set; }
 
         public ICollection<TransactionLog> TransactionLogs { get; set; }
     }
