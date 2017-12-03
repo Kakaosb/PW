@@ -1,10 +1,17 @@
 ﻿<!DOCTYPE html>
 <style>
-    .spinner {
-        background-image: url("content/images/spinner.gif");
-        height: 64px;
-        width: 64px;
-        position: absolute;
+  
+    .spinner_balance {
+        display: none;
+        background-image: url(content/images/Facebook.gif);
+        width: 34px;
+        height: 28px;
+        float: right;
+        margin-top: -9px;
+    }
+
+    .balance {
+        width: 150px;
     }
 </style>
 
@@ -36,7 +43,7 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li ng-show="prop.LoggedIn"><i class="fa fa-shield"></i> <a><b>{{prop.UserName}}</b></a></li>
-                <li ng-show="prop.LoggedIn"><i class="fa fa-shield"></i> <a>My Balance: <b>{{prop.Balance}}</b></a></li>
+                <li ng-show="prop.LoggedIn" class="balance"><i class="fa fa-shield"></i> <a>My Balance: <b>{{prop.Balance}}</b></a></li>
                 <li ng-show="prop.LoggedIn"><a href="#!Operations"><i class="fa fa-shield"></i> My operations</a></li>
                 <li ng-show="prop.LoggedIn"><a href="" ng-click="logout()"><i class="fa fa-comment"></i> Logout</a></li>
 

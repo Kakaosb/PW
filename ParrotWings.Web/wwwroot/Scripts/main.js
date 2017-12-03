@@ -119,6 +119,7 @@ function getBalance(setBalance) {
         },
         async: false
     }).success(function (data) {
+       
        setBalance(data);
 
     }).fail(function (data) {
