@@ -21,7 +21,7 @@ namespace ParrotWings.API.Controllers
         private ParrotWingsContext db = new ParrotWingsContext();
 
         [Route("GetUsers")]
-        public string GetUsers(string term)
+        public IHttpActionResult GetUsers(string term)
         {
             try
             {
@@ -37,31 +37,31 @@ namespace ParrotWings.API.Controllers
                     })
                     .ToList();
 
-                return JsonConvert.SerializeObject(users);
+                return Ok(JsonConvert.SerializeObject(users));
             }
             catch (Exception)
             {
-                return "Server Error. Contact your administrator.";
+                return BadRequest("Server Error. Contact your administrator.");
             }
         }
 
         [Route("GetName")]
-        public string GetName()
+        public IHttpActionResult GetName()
         {
             try
             {
                 var currentUserName = User.Identity.Name;
 
-                return currentUserName;
+                return Ok(currentUserName);
             }
             catch (Exception)
             {
-                return "Server Error. Contact your administrator.";
+                return BadRequest("Server Error. Contact your administrator.");
             }
         }
 
         [Route("GetBalance")]
-        public string GetBalance()
+        public IHttpActionResult GetBalance()
         {
             try
             {
@@ -70,11 +70,11 @@ namespace ParrotWings.API.Controllers
                 var user = db.Users
                     .FirstOrDefault(el => el.Name == currentUserName);
 
-                return user.Balance.ToString();
+                return Ok(user.Balance.ToString());
             }
             catch (Exception)
             {
-                return "Server Error. Contact your administrator.";
+                return BadRequest("Server Error. Contact your administrator.");
             }
         }
         // GET: api/Users

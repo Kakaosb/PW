@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Newtonsoft.Json;
-using ParrotWings.API;
 using ParrotWings.API.Models;
 using ParrotWings.API.Models.ModelHelpers;
 using ParrotWings.API.Models.ResponseModels;
+using ParrotWings.API.Services;
 
 namespace ParrotWings.API.Controllers
 {
@@ -21,52 +18,6 @@ namespace ParrotWings.API.Controllers
     public class TransactionController : ApiController
     {
         private ParrotWingsContext db = new ParrotWingsContext();
-        
-        // GET: api/Transaction
-        [Route("GetTransactionLogs")]
-        public string GetTransactionLogs()
-        {
-            try
-            {
-                var currentUserName = User.Identity.Name;
-
-                var entityCurrentUser = db.Users
-                    .FirstOrDefault(el => el.Name == currentUserName);
-
-                if (entityCurrentUser == null) return "Account Error. Contact your administrator.";
-
-                var userId = entityCurrentUser.Id;
-
-                var list = db.TransactionLogs
-                    .Where(el => el.RecipientId == userId || el.SenderId == userId)
-                    .ToList();
-
-                var logsList = list
-                    .Select(el =>
-                        new OperationsLogTable()
-                        {
-                            Sum = el.RecipientId == userId ? el.Sum : el.Sum * (-1),
-
-                            TransferType = el.RecipientId == userId
-                            ? TransferType.Debit.ToString()
-                            : TransferType.Credit.ToString(),
-
-                            UserName = el.RecipientId == userId ? el.Sender.Name : el.Recipient.Name,
-                            OperationDate = el.CreateDateTime.ToString("G"),
-                            Total = el.RecipientId == userId ? el.TotalRecipient : el.TotalSender
-                        }
-                    )
-                    .OrderByDescending(el => el.OperationDate)
-                    .ToList();
-
-                return JsonConvert.SerializeObject(logsList);
-
-            }
-            catch (Exception)
-            {
-                return "Server Error. Contact your administrator.";
-            }
-        }
 
         // GET: api/Transaction/5
         [ResponseType(typeof(TransactionLog))]
@@ -116,6 +67,25 @@ namespace ParrotWings.API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        // GET: api/Transaction
+        [Route("GetTransactionLogs")]
+        public IHttpActionResult GetTransactionLogs()
+        {
+            try
+            {
+                var trService = new TrasactionService(db, User.Identity.Name);
+
+                var logsList = trService.GetTransactionLogList();
+
+                return Ok(JsonConvert.SerializeObject(logsList));
+
+            }
+            catch (Exception)
+            {
+                return BadRequest("Server Error. Contact your administrator.");
+            }
+        }
+
         // POST: api/Transaction
         [HttpPost]
         [ResponseType(typeof(TransactionLog))]
@@ -125,39 +95,27 @@ namespace ParrotWings.API.Controllers
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                var currentUserName = User.Identity.Name;
+                var trService = new TrasactionService(db, User.Identity.Name);
 
-                var entityCurrentUser = db.Users
-                    .FirstOrDefault(el => el.Name == currentUserName);
+                var checkedResult = trService.CheckParties(transactionLog.RecipientId);
+                if (checkedResult != "Ok")
+                    return BadRequest(checkedResult);
 
-                var recipient = db.Users
-                    .FirstOrDefault(el => el.Id == transactionLog.RecipientId);
+                checkedResult = trService.CheckSolvency(transactionLog.Sum);
+                if (checkedResult != "Ok")
+                    return BadRequest(checkedResult);
 
-                if (entityCurrentUser == null || recipient == null) return BadRequest("One of the parties not found. Contact your administrator.");
-                if (entityCurrentUser.Id == transactionLog.RecipientId) return BadRequest("You can not send PW to yourself");
-                if (entityCurrentUser.Balance < transactionLog.Sum) return BadRequest("You don't have enough PW");
-
-                entityCurrentUser.Balance -= transactionLog.Sum;
-                recipient.Balance += transactionLog.Sum;
-
-                transactionLog.SenderId = entityCurrentUser.Id;
-                transactionLog.CreateDateTime = DateTime.Now;
-                transactionLog.TotalRecipient = recipient.Balance;
-                transactionLog.TotalSender = entityCurrentUser.Balance;
-
-                db.TransactionLogs.Add(transactionLog);
-
-                db.SaveChanges();
+                trService.CreateTransactionLog(transactionLog, out var recipientName);
 
                 var response = new TransactionResponse()
                 {
                     Total = transactionLog.TotalSender,
-                    Sum = transactionLog.Sum*(-1),
+                    Sum = transactionLog.Sum * (-1),
                     TransferType = TransferType.Credit.ToString(),
                     OperationDate = transactionLog.CreateDateTime.ToString("G"),
-                    UserName = recipient.Name
+                    UserName = recipientName
                 };
-               
+
                 return Ok(JsonConvert.SerializeObject(response));
 
             }

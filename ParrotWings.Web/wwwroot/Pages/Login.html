@@ -3,12 +3,11 @@
 
     <div class="row">
         <div class="loginForm">
-            <h3>Вход на сайт</h3>
-            <label>Введите Name</label><br />
+            <label>Enter your name</label><br />
             <input type="text" id="nameLogin" required/> <br /><br />
-            <label>Введите пароль</label><br />
+            <label>Enter Password</label><br />
             <input type="password" id="passwordLogin" required/><br /><br />
-            <input type="submit" id="submitLogin" value="Логин" ng-click="loggedInFunc()" />
+            <input type="submit" id="submitLogin" value="OK" ng-click="loggedInFunc()" />
         </div>
     </div>
 </div>
@@ -27,7 +26,6 @@
             url: baseUrl + '/Token',
             data: loginData
         }).success(function (data) {
-            console.log('what');
             sessionStorage.setItem(tokenKey, data.access_token);
            
             setProp();
