@@ -12,39 +12,16 @@ using Newtonsoft.Json;
 using ParrotWings.API;
 using ParrotWings.API.Models;
 using ParrotWings.API.Models.ModelHelpers;
+using ParrotWings.API.Models.ResponseModels;
 
 namespace ParrotWings.API.Controllers
 {
+    [Authorize]
     [RoutePrefix("api/Transaction")]
     public class TransactionController : ApiController
     {
         private ParrotWingsContext db = new ParrotWingsContext();
-
-       [Route("GetUsers")]
-        public string GetUsers(string term)
-        {
-            try
-            {
-                var currentUserName = User.Identity.Name;
-
-                var users = db.Users
-                    .Where(el => el.Name.StartsWith(term)
-                        && el.Name != currentUserName)
-                    .Select(el => new
-                    {
-                        el.Id,
-                        el.Name
-                    })
-                    .ToList();
-
-                return JsonConvert.SerializeObject(users);
-            }
-            catch (Exception)
-            {
-                return "Server Error. Contact your administrator.";
-            }
-        }
-
+        
         // GET: api/Transaction
         [Route("GetTransactionLogs")]
         public string GetTransactionLogs()
@@ -172,10 +149,19 @@ namespace ParrotWings.API.Controllers
 
                 db.SaveChanges();
 
-                return Ok(entityCurrentUser.Balance.ToString());
+                var response = new TransactionResponse()
+                {
+                    Total = transactionLog.TotalSender,
+                    Sum = transactionLog.Sum*(-1),
+                    TransferType = TransferType.Credit.ToString(),
+                    OperationDate = transactionLog.CreateDateTime.ToString("G"),
+                    UserName = recipient.Name
+                };
+               
+                return Ok(JsonConvert.SerializeObject(response));
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return BadRequest("Server Error. Contact your administrator.");
             }

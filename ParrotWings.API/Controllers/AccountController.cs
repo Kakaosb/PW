@@ -53,26 +53,7 @@ namespace ParrotWings.API.Controllers
         }
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
-
-        [Route("GetInfo")]
-        public string GetInfo()
-        {
-            try
-            {
-                ParrotWingsContext db = new ParrotWingsContext();
-                var currentUserName = User.Identity.Name;
-
-                var user = db.Users
-                    .FirstOrDefault(el => el.Name == currentUserName);
-
-                return JsonConvert.SerializeObject(user);
-            }
-            catch (Exception)
-            {
-                return "Server Error. Contact your administrator.";
-            }
-        }
-
+        
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]

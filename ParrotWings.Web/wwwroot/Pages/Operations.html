@@ -102,8 +102,11 @@
 
 <script>
 
-    /////////////////////SEND PW BLOCK/////////////////////////////
     $(function () {
+        getLogs(setDataTable);
+
+        /////////////////////SEND PW BLOCK/////////////////////////////
+        /////////1. GET USER LIST////////////////////////////////////
         $("#recipient").autocomplete({
             source: []
         });
@@ -112,142 +115,157 @@
             const term = $("#recipient").val();
 
             if (term.length === 3) {
-                const users = getUsersNames(term);
-                var collection = [];
-
-                users.forEach(function (item, i, arr) {
-                    collection.push(
-                        {
-                            "label": item.Name,
-                            "value": item.Name,
-                            "id": item.Id
-                        });
-                });
-
-                $("#recipient").autocomplete({
-                    source: collection,
-                    change: function(event, ui) {
-                        if (ui.item) {
-                            $("#recipient_id").val(ui.item.id);
-                        }
-                    }
-                });
+                getUsersNames(term, setUsersList);
             }
         });
 
-        function getUsersNames(term) {
+        function setUsersList(users) {
+            var collection = [];
+
+            users.forEach(function (item, i, arr) {
+                collection.push(
+                    {
+                        "label": item.Name,
+                        "value": item.Name,
+                        "id": item.Id
+                    });
+            });
+
+            $("#recipient").autocomplete({
+                source: collection,
+                change: function (event, ui) {
+                    if (ui.item) {
+                        $("#recipient_id").val(ui.item.id);
+                    }
+                }
+            });
+        }
+
+        function getUsersNames(term, setUsersList) {
             $('.spinner_user').css("display", "block");
-            var result;
 
             $.ajax({
                 type: 'GET',
-                url: baseUrl + '/api/Transaction/GetUsers?term=' + term,
+                url: baseUrl + '/api/Users/GetUsers?term=' + term,
                 beforeSend: function (xhr) {
                     const token = sessionStorage.getItem(tokenKey);
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
-                },
-                async: false
+                }
             }).success(function (data) {
                 $('.spinner_user').css("display", "none");
-                result = JSON.parse(data);
+                var result = JSON.parse(data);
+
+                setUsersList(result);
 
             }).fail(function (data) {
+                $('.spinner_user').css("display", "none");
                 alert(JSON.parse(data.responseText).Message);
             });
-
-            return result;
         }
     });
 
-    function sentPW() {
+    function sentPW(setBalance) {
         const recipient_id = $('#recipient_id').val();
         const sum = $('#sum').val();
+
         if (!recipient_id) {
             alert("You must select an existing user");
             return;
         }
 
-        if (!sum || sum<=0) {
+        if (!sum || sum <= 0) {
             alert("The sum must be > 0");
             return;
         }
 
-        $('.spinner_table').css("display", "block");
-        var result;
         const passData = {
             RecipientId: recipient_id,
             Sum: sum
         };
+
+        $('.spinner_table').css("display", "block");
         $.ajax({
             type: 'POST',
             contentType: "application/json",
             data: JSON.stringify(passData),
             url: baseUrl + '/api/Transaction/PostTransactionLog',
-            async: false,
-            beforeSend: function (xhr) {
-                const token = sessionStorage.getItem(tokenKey);
-                xhr.setRequestHeader("Authorization", "Bearer " + token);
-            }
-        }).success(function (data) {
-            $('.spinner_table').css("display", "none");
-            alert("PW sent successfully");
-            result = data;
-
-        }).fail(function (data) {
-            alert(JSON.parse(data.responseText).Message);
-            result = false;
-        });
-
-        return result;
-    }
-
-    /////////////////////SHOW OPERATIONS BLOCK////////////////////
-    var dataTable = getLogs();
-
-    var table =  $('#operations').DataTable(
-        {
-            data: dataTable,
-            columns: [
-                { data: 'Sum' },
-                { data: 'TransferType' },
-                { data: 'UserName' },
-                { data: 'OperationDate' },
-                { data: 'Total' }
-            ],
-
-            createdRow: function (row, data, index) {
-                if (data.Sum < 0) {
-                    $('td', row).addClass('red');
-                } else {
-                    $('td', row).addClass('green');
-                }
-            }
-        });
-
- //// Sort by column 1 and then re-draw
- //   table
- //       .order( [ 3, 'desc' ] )
- //       .draw();
-
-    function getLogs() {
-        var result;
-
-        $.ajax({
-            type: 'GET',
-            url: baseUrl + '/api/Transaction/GetTransactionLogs',
             beforeSend: function (xhr) {
                 const token = sessionStorage.getItem(tokenKey);
                 xhr.setRequestHeader("Authorization", "Bearer " + token);
             },
             async: false
         }).success(function (data) {
+            $('.spinner_table').css("display", "none");
 
-            result = JSON.parse(data);
+            var result = JSON.parse(data);
 
+            setBalance(result.Total);
+            addNewRow(result);
+
+            alert("PW sent successfully");
+        }).fail(function (data) {
+            $('.spinner_table').css("display", "none");
+            alert(JSON.parse(data.responseText).Message);
+        });
+    }
+
+    /////////////////////SHOW OPERATIONS BLOCK////////////////////
+
+    var table;
+
+    function setDataTable(data) {
+        var dataTable = data;
+
+        table = $('#operations').DataTable(
+            {
+                data: dataTable,
+                columns: [
+                    { data: 'Sum' },
+                    { data: 'TransferType' },
+                    { data: 'UserName' },
+                    { data: 'OperationDate' },
+                    { data: 'Total' }
+                ],
+
+                createdRow: function (row, data, index) {
+                    if (data.Sum < 0) {
+                        $('td', row).addClass('red');
+                    } else {
+                        $('td', row).addClass('green');
+                    }
+                }
+            });
+    }
+
+    function addNewRow(data) {
+        var rowNode = table.row.add({
+            "Sum": data.Sum,
+            "TransferType": data.TransferType,
+            "UserName": data.UserName,
+            "OperationDate": data.OperationDate,
+            "Total": data.Total
+        }).draw()
+            .node();
+
+        $(rowNode)
+            .css('color', 'red');
+    }
+
+    function getLogs(setDataTable) {
+        $.ajax({
+            type: 'GET',
+            url: baseUrl + '/api/Transaction/GetTransactionLogs',
+            beforeSend: function (xhr) {
+                const token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).success(function (data) {
+
+            var result = JSON.parse(data);
+
+            setDataTable(result);
         }).fail(function (data) {
             alert(JSON.parse(data.responseText).Message);
         });
-
-        return result;
     }
 </script>

@@ -2,9 +2,8 @@
 
 const tokenKey = "tokenInfoPW";
 const userNameKey = "userName";
-var loggedIn = sessionStorage.getItem('tokenInfoPW') != null ? true : false;
-var balance = 0;
-var userName = "";
+var loggedInG = sessionStorage.getItem(tokenKey) != null ? true : false;
+var userNameG = sessionStorage.getItem(userNameKey) != null ? sessionStorage.getItem(userNameKey) : "";
 
 var pWApp = angular.module('pWApp', ['ngRoute']);
 
@@ -34,91 +33,95 @@ pWApp.config(function ($routeProvider) {
 
 pWApp.controller('mainController', function ($scope, $rootScope, $window) {
     $rootScope.prop = {
-        loggedIn: loggedIn,
-        Balance: balance,
-        UserName: userName
+        LoggedIn: loggedInG,
+        Balance: "",
+        UserName: userNameG
     };
 
     $scope.logout = function () {
         sessionStorage.removeItem(tokenKey);
         sessionStorage.removeItem(userNameKey);
-        $rootScope.prop = { loggedIn: false };
+        $rootScope.prop.LoggedIn = false;
+        userNameG = "";
         $window.location.href = '#!/Login';
     }
 });
 
 pWApp.controller('registerController', function ($scope, $rootScope, $window) {
+    if (sessionStorage.getItem(tokenKey) != null)
+        $window.location.href = '#!/Operations';
+
     $scope.register = function () {
-        if (register()) {
-            $window.location.href = '#!/Login';
-        }
+        register(function() { $window.location.href = '#!/Login'; });
     }
 });
 
 pWApp.controller('loginController', function ($scope, $rootScope, $window) {
+    if (sessionStorage.getItem(tokenKey) != null)
+        $window.location.href = '#!/Operations';
+
     $scope.loggedInFunc = function () {
 
-        if (loggedInFunc()) {
-            var info = getInfo();
-            userName = info.Name;
-            sessionStorage.setItem(userNameKey, userName);
+        loggedInFunc(setPropAndRedirectToOpertion);
 
-            $rootScope.prop = {
-                loggedIn: true,
-                Balance: info.Balance,
-                UserName: userName
-        };
-            $window.location.href = '#!/Operations';
+        function setPropAndRedirectToOpertion() {
+            getName(function () {
+                loggedInG = true;
+                $window.location.href = '#!/Operations';
+            }
+            );
         }
     }
 });
 
 pWApp.controller('operationsController', function ($scope, $rootScope) {
-    var info = getInfo();
+    $rootScope.prop.UserName = userNameG;
+    $rootScope.prop.LoggedIn = loggedInG;
+  
+    getBalance(function (balance) { $rootScope.prop.Balance = balance });
+ 
+    $scope.passPWFunc = function () {
+        sentPW(function(balance) {
+            $rootScope.prop.Balance = balance;
+        });
 
-    $rootScope.prop = {
-        loggedIn: loggedIn,
-        Balance: info.Balance,
-        UserName: sessionStorage.getItem(userNameKey)
-    };
-
-   $scope.passPWFunc = function () {
-        const balance = sentPW();
-
-        if (balance != null) {
-
-            var info = getInfo();
-
-            $rootScope.prop = {
-                loggedIn: loggedIn,
-                Balance: balance,
-                UserName: sessionStorage.getItem(userNameKey)
-            };
-            $('#recipient_id').val("");
-            $('#recipient').val("");
-            $('#sum').val("");
-        }
+        $('#recipient_id').val("");
+        $('#recipient').val("");
+        $('#sum').val("");
     }
 });
 
-function getInfo() {
-    var result;
+function getName(redirect) {
     $.ajax({
         type: 'GET',
-        url: baseUrl + '/api/Account/GetInfo',
+        url: baseUrl + '/api/Users/GetName',
+        beforeSend: function (xhr) {
+            const token = sessionStorage.getItem(tokenKey);
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        }
+    }).success(function (data) {
+
+        userNameG = data;
+        sessionStorage.setItem(userNameKey, userNameG);
+        redirect();
+    }).fail(function (data) {
+        alert(JSON.parse(data.responseText).Message);
+    });
+}
+
+function getBalance(setBalance) {
+    $.ajax({
+        type: 'GET',
+        url: baseUrl + '/api/Users/GetBalance',
         beforeSend: function (xhr) {
             const token = sessionStorage.getItem(tokenKey);
             xhr.setRequestHeader("Authorization", "Bearer " + token);
         },
         async: false
     }).success(function (data) {
-
-        result = JSON.parse(data);
-        console.log(result);
+       setBalance(data);
 
     }).fail(function (data) {
         alert(JSON.parse(data.responseText).Message);
     });
-
-    return result;
 }

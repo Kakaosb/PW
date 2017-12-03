@@ -5,19 +5,17 @@
         <div class="loginForm">
             <h3>Вход на сайт</h3>
             <label>Введите Name</label><br />
-            <input type="text" id="nameLogin" /> <br /><br />
+            <input type="text" id="nameLogin" required/> <br /><br />
             <label>Введите пароль</label><br />
-            <input type="password" id="passwordLogin" /><br /><br />
+            <input type="password" id="passwordLogin" required/><br /><br />
             <input type="submit" id="submitLogin" value="Логин" ng-click="loggedInFunc()" />
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-   
-   function loggedInFunc() {
-        var result;
 
+    function loggedInFunc(setProp) {
         var loginData = {
             grant_type: 'password',
             username: $('#nameLogin').val(),
@@ -27,18 +25,17 @@
         $.ajax({
             type: 'POST',
             url: baseUrl + '/Token',
-            data: loginData,
-            async: false
+            data: loginData
         }).success(function (data) {
-           sessionStorage.setItem(tokenKey, data.access_token);
+            console.log('what');
+            sessionStorage.setItem(tokenKey, data.access_token);
+           
+            setProp();
 
-            result = true;
-        }).fail(function (data) {
-            alert(JSON.parse(data.responseText).Message);
-            result = false;
+            }).fail(function (qXHR, textStatus, errorThrown) {
+            var text = JSON.parse(qXHR.responseText);
+            alert(text.error_description);
         });
-
-        return result;
     }
 
-  </script>
+</script>

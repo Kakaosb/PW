@@ -36,23 +36,25 @@ namespace ParrotWings.API.Models
     {
         [Required]
         [Display(Name = "Email")]
+        [EmailAddress(ErrorMessage = "Invalid email.")]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Text)]
-        [StringLength(20, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 2)]
+        [StringLength(20, ErrorMessage = "The value of the {0}  must contain at least {2} characters.", MinimumLength = 2)]
         [Display(Name = "Name")]
+        [RegularExpression(@"[a-zA-Z -]*$", ErrorMessage = "Name must contain only letters, spaces, and dashes")]
         public string Name { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The value of the {0}  must contain at least {2} characters.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
-        [Compare("Password", ErrorMessage = "Пароль и его подтверждение не совпадают.")]
+        [Compare("Password", ErrorMessage = "Password and confirmation do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
