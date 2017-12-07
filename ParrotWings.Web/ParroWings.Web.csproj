@@ -91,6 +91,10 @@
     <Content Include="wwwroot\Content\bootstrap.css.map" />
     <Content Include="wwwroot\Content\bootstrap-theme.min.css.map" />
     <Content Include="wwwroot\Content\bootstrap-theme.css.map" />
+    <Content Include="wwwroot\Scripts\controllers\login.js" />
+    <Content Include="wwwroot\Scripts\controllers\main.js" />
+    <Content Include="wwwroot\Scripts\controllers\operations.js" />
+    <Content Include="wwwroot\Scripts\controllers\register.js" />
     <Content Include="wwwroot\Scripts\datatables.min.js" />
     <None Include="packages.config" />
     <Content Include="wwwroot\Scripts\angular\angular-route.min.js.map" />
